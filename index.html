@@ -2,32 +2,35 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة أبو نواف - نسخة الـ 4K</title>
+    <title>منصة أبو نواف الشاملة - تصميم الاختبارات</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    
     <style>
-        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; background: #f0f2f5; }
+        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
         
-        /* قسم التحكم (اليمين) */
-        .controls { width: 35%; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
-        .config-box { background: #eef6ff; padding: 15px; border-radius: 10px; margin-bottom: 20px; border: 1px solid #b3d7ff; }
-        .input-group { margin-bottom: 12px; }
-        label { display: block; font-weight: bold; margin-bottom: 5px; color: #333; }
-        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 5px; box-sizing: border-box; font-size: 14px; }
+        /* لوحة التحكم اليمين */
+        .controls { width: 350px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); flex-shrink: 0; }
+        .config-box { background: #f8fbff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cce5ff; }
+        .input-group { margin-bottom: 10px; }
+        label { display: block; font-weight: bold; margin-bottom: 3px; font-size: 14px; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
         
-        .btn { width: 100%; padding: 12px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; }
+        .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
-        .btn-img { background: #6f42c1; } /* زر الصورة بلون مميز */
-        .btn-clear { background: #dc3545; }
-        
-        /* قسم المعاينة (اليسار) */
-        .preview-area { width: 65%; padding: 20px; overflow-y: auto; display: flex; justify-content: center; background: #525659; }
+        .btn-pdf { background: #d9534f; } /* أحمر للـ PDF */
+        .btn-print { background: #5bc0de; } /* سماوي للطباعة */
+        .btn-img { background: #6f42c1; } /* بنفسجي للصورة */
+        .btn-clear { background: #666; font-size: 12px; }
+
+        /* منطقة المعاينة */
+        .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; justify-content: center; background: #525659; }
         .word-page { 
-            width: 210mm; background: white; padding: 10mm; 
-            box-shadow: 0 0 15px rgba(0,0,0,0.5); min-height: 297mm;
-            position: relative; padding-top: 0;
+            width: 210mm; background: white; padding: 10mm; min-height: 297mm;
+            position: relative; padding-top: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5);
         }
 
-        /* تنسيق الجداول والأسئلة (مطابق للصورة تماماً) */
+        /* تنسيق الجداول (مطابق للصورة) */
         .header-table { width: 100%; border-collapse: collapse; margin-top: 0; }
         .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
@@ -35,35 +38,41 @@
         .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
         .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 110px; position: relative; }
         .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #eee; margin-left: 8px; }
-        
         .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
         
-        .delete-btn { color: red; cursor: pointer; font-size: 11px; float: left; border: 1px solid red; padding: 1px 4px; border-radius: 3px; }
-        .no-copy { user-select: none; }
+        .delete-btn { color: red; cursor: pointer; font-size: 11px; float: left; border: 1px solid red; padding: 1px 4px; border-radius: 3px; font-family: sans-serif; }
+        
+        @media print { 
+            .controls { display: none; } 
+            body { background: white; } 
+            .preview-area { padding: 0; background: white; }
+            .word-page { box-shadow: none; margin: 0; width: 100%; }
+            .delete-btn { display: none !important; }
+        }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h2 style="color:#007bff; margin-top:0;">إدارة اختبارات أبو نواف</h2>
+        <h3 style="color:#007bff; margin-top:0; text-align:center;">إدارة اختبارات أ/ عبدالعزيز</h3>
         
         <div class="config-box">
-            <div class="input-group"><label>اسم المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
+            <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
-            <div class="input-group"><label>العام الدراسي</label><input type="text" id="cfgYear" value="1447هـ" oninput="updatePreview()"></div>
+            <div class="input-group"><label>العام</label><input type="text" id="cfgYear" value="1447هـ" oninput="updatePreview()"></div>
             <div class="input-group"><label>المعلم</label><input type="text" id="cfgTeacher" value="عبدالعزيز الفيفي" oninput="updatePreview()"></div>
         </div>
 
         <div class="input-group">
-            <label>نوع السؤال</label>
+            <label>نوع الفقرة</label>
             <select id="qType" onchange="toggleInputs()">
                 <option value="multi">اختياري (أ، ب، ج، د)</option>
                 <option value="tf">صح أو خطأ (✓، ✗)</option>
             </select>
         </div>
-        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2" placeholder="اكتب نص السؤال هنا..."></textarea></div>
+        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2" placeholder="اكتب السؤال هنا..."></textarea></div>
         
         <div id="optsArea">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
@@ -74,9 +83,12 @@
             </div>
         </div>
 
-        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال للمعاينة</button>
-        <button class="btn btn-img" onclick="saveAsImage()">حفظ كصورة عالية الجودة 4K</button>
-        <button class="btn btn-clear" onclick="clearAll()">مسح الكل</button>
+        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
+        <hr>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة ورقية مباشرة</button>
+        <button class="btn btn-pdf" onclick="saveAsPDF()">📄 حفظ بتنسيق PDF</button>
+        <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة 4K</button>
+        <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح جميع الأسئلة</button>
     </div>
 
     <div class="preview-area">
@@ -116,7 +128,7 @@
         }
 
         function clearAll() {
-            if(confirm("هل تريد مسح جميع الأسئلة؟")) { questions = []; updatePreview(); }
+            if(confirm("هل تريد مسح كل الأسئلة؟")) { questions = []; updatePreview(); }
         }
 
         function updatePreview() {
@@ -139,13 +151,13 @@
                         <div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div>
                         <div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div>
                     </div>` : `
-                    <div class="options-container" style="margin-top:20px">
+                    <div class="options-container" style="margin-top:15px">
                         <div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div>
                     </div>`;
                 
                 qHtml += `
                     <div class="q-box">
-                        <span class="delete-btn no-copy" onclick="removeQ(${i})">حذف</span>
+                        <span class="delete-btn" onclick="removeQ(${i})">حذف</span>
                         <div><span class="q-num">${i+1}</span><span style="font-weight:bold">${q.text}</span></div>
                         ${opts}
                     </div>`;
@@ -154,37 +166,40 @@
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
         }
 
+        function saveAsPDF() {
+            const element = document.getElementById('capture-area');
+            const btns = document.querySelectorAll('.delete-btn');
+            btns.forEach(b => b.style.display = 'none'); // إخفاء أزرار الحذف
+
+            const opt = {
+                margin: 0,
+                filename: 'اختبار_الكفايات_أبو_نواف.pdf',
+                image: { type: 'jpeg', quality: 0.98 },
+                html2canvas: { scale: 2, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save().then(() => {
+                btns.forEach(b => b.style.display = 'block'); // إعادة الإظهار
+            });
+        }
+
         function saveAsImage() {
             const node = document.getElementById('capture-area');
-            
-            // إخفاء أزرار الحذف مؤقتاً قبل التصوير
-            const deleteButtons = document.querySelectorAll('.delete-btn');
-            deleteButtons.forEach(btn => btn.style.display = 'none');
+            const btns = document.querySelectorAll('.delete-btn');
+            btns.forEach(b => b.style.display = 'none');
 
-            // إعدادات الدقة العالية (Scale 4 تعطي دقة 4K تقريباً)
-            const scale = 4; 
-
+            const scale = 4; // دقة 4K
             htmlToImage.toPng(node, {
                 width: node.offsetWidth * scale,
                 height: node.offsetHeight * scale,
-                style: {
-                    transform: 'scale(' + scale + ')',
-                    transformOrigin: 'top left',
-                    width: node.offsetWidth + 'px',
-                    height: node.offsetHeight + 'px'
-                }
+                style: { transform: 'scale(' + scale + ')', transformOrigin: 'top left', width: node.offsetWidth + 'px', height: node.offsetHeight + 'px' }
             })
             .then(function (dataUrl) {
                 var link = document.createElement('a');
-                link.download = 'اختبار_أبو_نواف_عالي_الجودة.png';
+                link.download = 'اختبار_بجودة_4K.png';
                 link.href = dataUrl;
                 link.click();
-                // إظهار أزرار الحذف مرة أخرى
-                deleteButtons.forEach(btn => btn.style.display = 'block');
-            })
-            .catch(function (error) {
-                console.error('حدث خطأ أثناء حفظ الصورة:', error);
-                deleteButtons.forEach(btn => btn.style.display = 'block');
+                btns.forEach(b => b.style.display = 'block');
             });
         }
 
