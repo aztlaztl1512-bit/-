@@ -2,10 +2,10 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة أبو نواف - نماذج الاختبارات الرسمية</title>
+    <title>منصة أبو نواف - نماذج الاختبارات الاحترافية</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; background-color: #f4f7f6; }
+        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; background-color: #f0f2f5; }
         
         /* واجهة التحكم */
         .no-print-area { background: #ffffff; padding: 20px; border-bottom: 4px solid #1a73e8; position: sticky; top: 0; z-index: 100; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
@@ -18,26 +18,40 @@
         
         /* تنسيق الورقة الرسمية */
         .page { 
-            width: 210mm; min-height: 290mm; padding: 12mm; margin: 20px auto; 
+            width: 210mm; min-height: 290mm; padding: 10mm; margin: 20px auto; 
             background: white; box-sizing: border-box; page-break-after: always;
-            border: 1px solid #ddd; position: relative;
+            border: 1px solid #ddd;
         }
         
-        /* الكليشة الرسمية */
-        .official-header { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .official-header td { border: 1.5px solid black; padding: 6px; text-align: center; font-weight: bold; font-size: 13pt; }
-        
-        .student-info-table { width: 100%; border-collapse: collapse; margin-bottom: 20px; }
-        .student-info-table td { border: 1.5px solid black; padding: 8px; font-weight: bold; font-size: 12pt; text-align: right; }
+        /* الكليشة والبيانات */
+        .official-header { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .official-header td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 12pt; }
+        .student-info-table { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
+        .student-info-table td { border: 1.5px solid black; padding: 8px; font-weight: bold; font-size: 11pt; text-align: right; }
 
         /* تنسيق الأسئلة */
         .questions-container { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; }
-        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 85px; }
-        .q-text { font-weight: 900; font-size: 13pt; margin-bottom: 8px; display: block; }
+        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 8px; min-height: 80px; position: relative; }
         
-        .bubble { display: inline-block; width: 14px; height: 14px; border: 1.5px solid black; border-radius: 50%; margin-left: 6px; vertical-align: middle; }
-        .options-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; font-size: 12pt; }
-        .opt-item { display: flex; align-items: center; }
+        /* رقم السؤال داخل مربع */
+        .q-num { 
+            display: inline-block; width: 22px; height: 22px; 
+            border: 1.5px solid black; text-align: center; 
+            line-height: 22px; font-weight: bold; background: #eee; 
+            margin-left: 8px; font-size: 11pt;
+        }
+        
+        .q-text { font-weight: 900; font-size: 12pt; display: inline; color: black; }
+        
+        /* الدوائر وبداخلها الرموز */
+        .bubble-container { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: 8px; }
+        .opt-item { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
+        .bubble { 
+            display: inline-block; width: 20px; height: 20px; 
+            border: 1.5px solid black; border-radius: 50%; 
+            text-align: center; line-height: 18px; 
+            margin-left: 5px; font-size: 10pt; font-weight: bold;
+        }
 
         @media print { .no-print-area { display: none; } body { background: none; } .page { margin: 0; border: none; } }
     </style>
@@ -60,9 +74,9 @@
             <input type="text" id="optC" placeholder="خيار (ج)">
             <input type="text" id="optD" placeholder="خيار (د)">
         </div>
-        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال للنموذج</button>
+        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <button class="btn btn-pdf" onclick="generatePDF()">تحميل الاختبار PDF</button>
-        <span id="counter" style="margin-right:20px; font-weight:bold;">الأسئلة الحالية: 0</span>
+        <span id="counter" style="margin-right:20px; font-weight:bold;">الأسئلة: 0</span>
     </div>
 </div>
 
@@ -90,7 +104,7 @@
         questions.push(q);
         renderExam();
         document.getElementById('qText').value = '';
-        document.getElementById('counter').innerText = `الأسئلة الحالية: ${questions.length}`;
+        document.getElementById('counter').innerText = `الأسئلة: ${questions.length}`;
     }
 
     function renderExam() {
@@ -108,32 +122,34 @@
             let optionsHtml = '';
             if(q.type === 'multi') {
                 optionsHtml = `
-                    <div class="options-grid">
-                        <div class="opt-item"><span class="bubble"></span> أ) ${q.a}</div>
-                        <div class="opt-item"><span class="bubble"></span> ج) ${q.c}</div>
-                        <div class="opt-item"><span class="bubble"></span> ب) ${q.b}</div>
-                        <div class="opt-item"><span class="bubble"></span> د) ${q.d}</div>
+                    <div class="bubble-container">
+                        <div class="opt-item"><span class="bubble">أ</span> ${q.a}</div>
+                        <div class="opt-item"><span class="bubble">ج</span> ${q.c}</div>
+                        <div class="opt-item"><span class="bubble">ب</span> ${q.b}</div>
+                        <div class="opt-item"><span class="bubble">د</span> ${q.d}</div>
                     </div>`;
             } else {
                 optionsHtml = `
-                    <div class="options-grid">
-                        <div class="opt-item"><span class="bubble"></span> صح</div>
-                        <div class="opt-item"><span class="bubble"></span> خطأ</div>
+                    <div class="bubble-container">
+                        <div class="opt-item"><span class="bubble">✓</span> صح</div>
+                        <div class="opt-item"><span class="bubble">✗</span> خطأ</div>
                     </div>`;
             }
-            qHtml += `<div class="q-box"><span class="q-text">${startIdx + idx + 1}. ${q.text}</span>${optionsHtml}</div>`;
+            qHtml += `
+                <div class="q-box">
+                    <span class="q-num">${startIdx + idx + 1}</span>
+                    <span class="q-text">${q.text}</span>
+                    ${optionsHtml}
+                </div>`;
         });
 
         return `
             <div class="page">
                 <table class="official-header">
                     <tr>
-                        <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>إدارة تعليم الرياض<br>ثانوية الأمير عبدالمجيد</td>
-                        <td width="40%">
-                            <img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="80">
-                            <br>اختبار الكفايات اللغوية
-                        </td>
-                        <td width="30%">العام الدراسي: 1447هـ<br>الفصل الدراسي الأول<br>الزمن: ساعتان ونصف<br>الدرجة: 40</td>
+                        <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>ثانوية الأمير عبدالمجيد</td>
+                        <td width="40%"><img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="70"><br>اختبار الكفايات اللغوية</td>
+                        <td width="30%">عام 1447هـ<br>الزمن: ساعتان ونصف<br>الدرجة: 40</td>
                     </tr>
                 </table>
 
@@ -145,26 +161,22 @@
                     </tr>
                 </table>
 
-                <p style="text-align:center; font-weight:bold; text-decoration:underline;">أجب عن جميع الأسئلة التالية بوضوح:</p>
-
                 <div class="questions-container">${qHtml}</div>
 
-                <div style="margin-top:20px; text-align:center; font-weight:bold; font-size:10pt;">
-                    مع تمنياتنا لكم بالتوفيق والنجاح.. معلم المادة: عبدالعزيز الفيفي
+                <div style="margin-top:15px; text-align:center; font-weight:bold; font-size:9pt;">
+                    مع تمنياتنا لكم بالتوفيق.. معلم المادة: عبدالعزيز الفيفي
                 </div>
             </div>`;
     }
 
     function generatePDF() {
         const element = document.getElementById('exam-render');
-        const opt = {
+        html2pdf().set({
             margin: 0,
-            filename: 'اختبار_رسمي_أبو_نواف.pdf',
-            image: { type: 'jpeg', quality: 0.98 },
-            html2canvas: { scale: 2 },
+            filename: 'اختبار_رسمي_مطور.pdf',
+            html2canvas: { scale: 3 },
             jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-        };
-        html2pdf().set(opt).from(element).save();
+        }).from(element).save();
     }
 </script>
 </body>
