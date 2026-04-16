@@ -2,24 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة الاختبارات - أ/ عبدالعزيز الفيفي</title>
+    <title>نظام اختبارات ثانوية الأمير عبدالمجيد</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
-        /* إعدادات الطباعة الاحترافية */
+        /* إعدادات الطباعة الصارمة لضمان عدم الاختفاء */
         @media print {
-            @page { margin: 0; size: A4; }
+            @page { 
+                margin: 0; /* إلغاء الرابط والتاريخ تماماً */
+                size: A4;
+            }
             body { margin: 0; padding: 0; background: white; }
             .controls, .delete-btn, .no-print { display: none !important; }
-            .preview-area { background: white !important; padding: 0 !important; overflow: visible !important; display: block !important; }
+            .preview-area { background: white !important; padding: 0 !important; display: block !important; }
+            
             .word-page { 
-                box-shadow: none !important; border: none !important; 
-                width: 210mm !important; margin: 0 auto !important;
-                /* زيادة الهامش الأيسر لضمان عدم القص */
-                padding-top: 0.7cm !important;
-                padding-bottom: 0.5cm !important;
-                padding-right: 0.5cm !important;
-                padding-left: 1.2cm !important; /* هامش أيسر آمن جداً */
+                box-shadow: none !important; 
+                border: none !important; 
+                width: 190mm !important; /* تقليل العرض قليلاً لضمان بقائه داخل حدود الورقة */
+                margin-left: auto !important;
+                margin-right: auto !important;
+                padding: 10mm 5mm !important; /* هوامش داخلية متوازنة */
                 transform: scale(1) !important;
+            }
+            
+            table, .questions-grid {
+                width: 100% !important; /* تمدد الجداول لتملأ الـ 190 ملم */
             }
         }
 
@@ -33,25 +40,23 @@
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
         .btn-print { background: #17a2b8; }
-        .btn-img { background: #6f42c1; }
 
-        .preview-area { flex-grow: 1; padding: 5px; overflow: hidden; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
+        .preview-area { flex-grow: 1; padding: 10px; overflow: hidden; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
         .word-page { 
-            width: 210mm; background: white; 
-            padding: 0.7cm 0.5cm 0.5cm 1.2cm; /* هوامش الشاشة */
+            width: 210mm; background: white; padding: 10mm;
             min-height: 285mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.78); transform-origin: top center;
+            transform: scale(0.75); transform-origin: top center;
         }
 
-        /* تنسيق الجداول */
+        /* تنسيق الجداول (مطابق للنماذج الرسمية) */
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
-        .student-info { width: 100%; border-collapse: collapse; margin-top: 4px; }
-        .student-info td { border: 1.5px solid black; padding: 5px; font-weight: bold; font-size: 11pt; }
-        .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 8px; }
-        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 8px; min-height: 105px; position: relative; }
+        .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
+        .student-info td { border: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
+        .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
+        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 110px; position: relative; }
         .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #eee; margin-left: 8px; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
         .delete-btn { color: red; cursor: pointer; font-size: 10px; float: left; border: 1px solid red; padding: 1px 3px; border-radius: 3px; }
@@ -60,7 +65,7 @@
 <body>
 
     <div class="controls">
-        <h3 style="text-align:center; color:#007bff; margin-top:0;">منصة أ/ عبدالعزيز</h3>
+        <h3 style="text-align:center; color:#007bff; margin-top:0;">إعداد اختبار أ/ عبدالعزيز</h3>
         <div class="config-box">
             <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
@@ -76,7 +81,6 @@
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
         <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار</button>
-        <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة</button>
     </div>
 
     <div class="preview-area">
@@ -84,7 +88,7 @@
             <table class="header-table" id="headerTbl"></table>
             <table class="student-info"><tr><td width="55%">اسم الطالب: .......................................</td><td width="20%">الصف: .......</td><td width="25%">رقم الجلوس: .......</td></tr></table>
             <div class="questions-grid" id="qGrid"></div>
-            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:15px; font-size:11pt;"></div>
+            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:20px; font-size:11pt;"></div>
         </div>
     </div>
 
@@ -111,22 +115,6 @@
             });
             document.getElementById('qGrid').innerHTML = qHtml;
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
-        }
-        async function saveAsImage() {
-            const node = document.getElementById('capture-area');
-            const btns = document.querySelectorAll('.delete-btn');
-            btns.forEach(b => b.style.visibility = 'hidden');
-            const originalTransform = node.style.transform;
-            node.style.transform = "scale(1)";
-            try {
-                const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
-                const link = document.createElement('a');
-                link.download = 'اختبار_جاهز.png';
-                link.href = dataUrl;
-                link.click();
-            } catch (error) { alert("حدث خطأ"); }
-            node.style.transform = originalTransform;
-            btns.forEach(b => b.style.visibility = 'visible');
         }
         updatePreview();
     </script>
