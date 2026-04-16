@@ -2,29 +2,27 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة أبو نواف الشاملة - تصميم الاختبارات</title>
+    <title>منصة أبو نواف الشاملة</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
-    
     <style>
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
         
-        /* لوحة التحكم اليمين */
-        .controls { width: 350px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; box-shadow: 2px 0 10px rgba(0,0,0,0.1); flex-shrink: 0; }
+        /* لوحة التحكم (اليمين) */
+        .controls { width: 350px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; z-index: 100; }
         .config-box { background: #f8fbff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #cce5ff; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; margin-bottom: 3px; font-size: 14px; }
-        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; font-family: inherit; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; box-sizing: border-box; }
         
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
-        .btn-pdf { background: #d9534f; } /* أحمر للـ PDF */
-        .btn-print { background: #5bc0de; } /* سماوي للطباعة */
-        .btn-img { background: #6f42c1; } /* بنفسجي للصورة */
-        .btn-clear { background: #666; font-size: 12px; }
+        .btn-print { background: #17a2b8; }
+        .btn-img { background: #6f42c1; }
+        .btn-clear { background: #6c757d; font-size: 12px; }
 
-        /* منطقة المعاينة */
-        .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; display: flex; justify-content: center; background: #525659; }
+        /* منطقة المعاينة (اليسار) */
+        .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; }
         .word-page { 
             width: 210mm; background: white; padding: 10mm; min-height: 297mm;
             position: relative; padding-top: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5);
@@ -32,7 +30,7 @@
 
         /* تنسيق الجداول (مطابق للصورة) */
         .header-table { width: 100%; border-collapse: collapse; margin-top: 0; }
-        .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; }
+        .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .student-info td { border: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
         .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
@@ -41,166 +39,86 @@
         .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
-        
-        .delete-btn { color: red; cursor: pointer; font-size: 11px; float: left; border: 1px solid red; padding: 1px 4px; border-radius: 3px; font-family: sans-serif; }
-        
-        @media print { 
-            .controls { display: none; } 
-            body { background: white; } 
-            .preview-area { padding: 0; background: white; }
-            .word-page { box-shadow: none; margin: 0; width: 100%; }
-            .delete-btn { display: none !important; }
+        .delete-btn { color: red; cursor: pointer; font-size: 10px; float: left; border: 1px solid red; padding: 1px 3px; border-radius: 3px; }
+
+        /* إعدادات الطباعة لإخفاء كل شيء غير الاختبار */
+        @media print {
+            .controls, .delete-btn { display: none !important; }
+            .preview-area { padding: 0; background: white; overflow: visible; }
+            body { height: auto; }
+            .word-page { box-shadow: none; width: 100%; margin: 0; padding: 0; border: none; }
         }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h3 style="color:#007bff; margin-top:0; text-align:center;">إدارة اختبارات أ/ عبدالعزيز</h3>
-        
+        <h3 style="text-align:center; color:#007bff;">لوحة تحكم الاختبار</h3>
         <div class="config-box">
             <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
-            <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
-            <div class="input-group"><label>العام</label><input type="text" id="cfgYear" value="1447هـ" oninput="updatePreview()"></div>
             <div class="input-group"><label>المعلم</label><input type="text" id="cfgTeacher" value="عبدالعزيز الفيفي" oninput="updatePreview()"></div>
         </div>
-
         <div class="input-group">
             <label>نوع الفقرة</label>
-            <select id="qType" onchange="toggleInputs()">
-                <option value="multi">اختياري (أ، ب، ج، د)</option>
-                <option value="tf">صح أو خطأ (✓، ✗)</option>
-            </select>
+            <select id="qType" onchange="toggleInputs()"><option value="multi">اختياري</option><option value="tf">صح أو خطأ</option></select>
         </div>
-        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2" placeholder="اكتب السؤال هنا..."></textarea></div>
-        
-        <div id="optsArea">
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
-                <input type="text" id="optA" placeholder="خيار أ">
-                <input type="text" id="optC" placeholder="خيار ج">
-                <input type="text" id="optB" placeholder="خيار ب">
-                <input type="text" id="optD" placeholder="خيار د">
-            </div>
-        </div>
-
+        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2"></textarea></div>
+        <div id="optsArea"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><input type="text" id="optA" placeholder="أ"><input type="text" id="optC" placeholder="ج"><input type="text" id="optB" placeholder="ب"><input type="text" id="optD" placeholder="د"></div></div>
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة ورقية مباشرة</button>
-        <button class="btn btn-pdf" onclick="saveAsPDF()">📄 حفظ بتنسيق PDF</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة (PDF)</button>
         <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة 4K</button>
-        <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح جميع الأسئلة</button>
+        <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح الكل</button>
     </div>
 
     <div class="preview-area">
         <div class="word-page" id="capture-area">
             <table class="header-table" id="headerTbl"></table>
-            <table class="student-info">
-                <tr><td width="60%">اسم الطالب: ...........................................</td><td>الصف: .......</td><td>رقم الجلوس: .......</td></tr>
-            </table>
+            <table class="student-info"><tr><td width="60%">اسم الطالب: .......................................</td><td>الصف: .......</td><td>رقم الجلوس: .......</td></tr></table>
             <div class="questions-grid" id="qGrid"></div>
-            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:10px; font-size:10pt;"></div>
+            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:15px; font-size:10pt;"></div>
         </div>
     </div>
 
     <script>
         let questions = [];
-
-        function toggleInputs() {
-            document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'block' : 'none';
-        }
-
+        function toggleInputs() { document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'block' : 'none'; }
         function addQuestion() {
             const txt = document.getElementById('qText').value;
             if(!txt) return;
-            questions.push({
-                type: document.getElementById('qType').value,
-                text: txt,
-                a: document.getElementById('optA').value, b: document.getElementById('optB').value,
-                c: document.getElementById('optC').value, d: document.getElementById('optD').value
-            });
+            questions.push({ type: document.getElementById('qType').value, text: txt, a: document.getElementById('optA').value, b: document.getElementById('optB').value, c: document.getElementById('optC').value, d: document.getElementById('optD').value });
             updatePreview();
             document.getElementById('qText').value = '';
         }
-
-        function removeQ(index) {
-            questions.splice(index, 1);
-            updatePreview();
-        }
-
-        function clearAll() {
-            if(confirm("هل تريد مسح كل الأسئلة؟")) { questions = []; updatePreview(); }
-        }
-
+        function removeQ(index) { questions.splice(index, 1); updatePreview(); }
+        function clearAll() { if(confirm("مسح الكل؟")) { questions = []; updatePreview(); } }
+        
         function updatePreview() {
             const school = document.getElementById('cfgSchool').value;
-            const subject = document.getElementById('cfgSubject').value;
-            const year = document.getElementById('cfgYear').value;
             const teacher = document.getElementById('cfgTeacher').value;
-
-            document.getElementById('headerTbl').innerHTML = `
-                <tr>
-                    <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>تعليم الرياض<br>${school}</td>
-                    <td width="40%"><img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="60"><br>اختبار: ${subject}</td>
-                    <td width="30%">العام الدراسي: ${year}<br>الدرجة: 40<br>الزمن: ساعتان ونصف</td>
-                </tr>`;
-
+            document.getElementById('headerTbl').innerHTML = `<tr><td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>تعليم الرياض<br>${school}</td><td width="40%"><img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="55"><br>اختبار مقرر الكفايات اللغوية</td><td width="30%">العام: 1447هـ<br>الدرجة: 40<br>الزمن: ساعتان ونصف</td></tr>`;
             let qHtml = '';
             questions.forEach((q, i) => {
-                let opts = q.type === 'multi' ? `
-                    <div class="options-container">
-                        <div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div>
-                        <div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div>
-                    </div>` : `
-                    <div class="options-container" style="margin-top:15px">
-                        <div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div>
-                    </div>`;
-                
-                qHtml += `
-                    <div class="q-box">
-                        <span class="delete-btn" onclick="removeQ(${i})">حذف</span>
-                        <div><span class="q-num">${i+1}</span><span style="font-weight:bold">${q.text}</span></div>
-                        ${opts}
-                    </div>`;
+                let opts = q.type === 'multi' ? `<div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>` : `<div class="options-container" style="margin-top:15px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
+                qHtml += `<div class="q-box"><span class="delete-btn" onclick="removeQ(${i})">حذف</span><div><span class="q-num">${i+1}</span><b>${q.text}</b></div>${opts}</div>`;
             });
             document.getElementById('qGrid').innerHTML = qHtml;
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
         }
 
-        function saveAsPDF() {
-            const element = document.getElementById('capture-area');
-            const btns = document.querySelectorAll('.delete-btn');
-            btns.forEach(b => b.style.display = 'none'); // إخفاء أزرار الحذف
-
-            const opt = {
-                margin: 0,
-                filename: 'اختبار_الكفايات_أبو_نواف.pdf',
-                image: { type: 'jpeg', quality: 0.98 },
-                html2canvas: { scale: 2, useCORS: true },
-                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' }
-            };
-            html2pdf().set(opt).from(element).save().then(() => {
-                btns.forEach(b => b.style.display = 'block'); // إعادة الإظهار
-            });
-        }
-
-        function saveAsImage() {
+        async function saveAsImage() {
             const node = document.getElementById('capture-area');
             const btns = document.querySelectorAll('.delete-btn');
-            btns.forEach(b => b.style.display = 'none');
-
-            const scale = 4; // دقة 4K
-            htmlToImage.toPng(node, {
-                width: node.offsetWidth * scale,
-                height: node.offsetHeight * scale,
-                style: { transform: 'scale(' + scale + ')', transformOrigin: 'top left', width: node.offsetWidth + 'px', height: node.offsetHeight + 'px' }
-            })
-            .then(function (dataUrl) {
-                var link = document.createElement('a');
-                link.download = 'اختبار_بجودة_4K.png';
+            btns.forEach(b => b.style.visibility = 'hidden');
+            
+            try {
+                const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 3, backgroundColor: '#ffffff' });
+                const link = document.createElement('a');
+                link.download = 'اختبار_4K.png';
                 link.href = dataUrl;
                 link.click();
-                btns.forEach(b => b.style.display = 'block');
-            });
+            } catch (error) { alert("حدث خطأ في الحفظ، جرب متصفح كروم"); }
+            btns.forEach(b => b.style.visibility = 'visible');
         }
 
         updatePreview();
