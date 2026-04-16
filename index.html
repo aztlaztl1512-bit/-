@@ -14,9 +14,9 @@
             .word-page { 
                 box-shadow: none !important; border: none !important; 
                 width: 210mm !important; margin: 0 auto !important;
-                padding-top: 1.5cm !important; /* مسافة أمان علوية للكليشة */
-                padding-left: 1cm !important; padding-right: 1cm !important;
-                transform: scale(1) !important; /* إلغاء التصغير عند الطباعة */
+                /* تطبيق هوامش دقيقة: نصف سم فوق وتحت، وربع سم يمين ويسار */
+                padding: 0.5cm 0.25cm !important;
+                transform: scale(1) !important;
             }
         }
 
@@ -34,27 +34,30 @@
         .btn-img { background: #6f42c1; }
         .btn-clear { background: #6c757d; font-size: 12px; }
 
-        /* منطقة المعاينة الذكية (تمنع الأسهم) */
+        /* منطقة المعاينة الذكية (تمنع الأسهم وتوسط الورقة) */
         .preview-area { 
-            flex-grow: 1; padding: 10px; overflow: hidden; 
+            flex-grow: 1; padding: 5px; overflow: hidden; 
             background: #525659; display: flex; justify-content: center; align-items: flex-start; 
         }
         .word-page { 
-            width: 210mm; background: white; padding: 10mm; min-height: 280mm; 
+            width: 210mm; background: white; 
+            /* الهوامش المطلوبة: 0.5 سم فوق وتحت، 0.25 سم يمين ويسار */
+            padding: 0.5cm 0.25cm; 
+            min-height: 285mm; 
             position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.85); /* تصغير المعاينة لتناسب الشاشة */
+            transform: scale(0.82); /* تصغير طفيف إضافي لمنع الأسهم في كروم */
             transform-origin: top center;
         }
 
-        /* تنسيق الجداول */
+        /* تنسيق الجداول والأسئلة (مطابق للنموذج الرسمي) */
         .header-table { width: 100%; border-collapse: collapse; }
-        .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
-        .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
-        .student-info td { border: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
-        .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
-        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 110px; position: relative; }
+        .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
+        .student-info { width: 100%; border-collapse: collapse; margin-top: 4px; }
+        .student-info td { border: 1.5px solid black; padding: 5px; font-weight: bold; font-size: 11pt; }
+        .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 8px; }
+        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 8px; min-height: 105px; position: relative; }
         .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #eee; margin-left: 8px; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
         .delete-btn { color: red; cursor: pointer; font-size: 10px; float: left; border: 1px solid red; padding: 1px 3px; border-radius: 3px; }
@@ -88,7 +91,7 @@
             <table class="header-table" id="headerTbl"></table>
             <table class="student-info"><tr><td width="55%">اسم الطالب: .......................................</td><td width="20%">الصف: .......</td><td width="25%">رقم الجلوس: .......</td></tr></table>
             <div class="questions-grid" id="qGrid"></div>
-            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:20px; font-size:11pt;"></div>
+            <div id="footerMsg" style="text-align:center; font-weight:bold; margin-top:15px; font-size:11pt;"></div>
         </div>
     </div>
 
@@ -137,18 +140,15 @@
             const node = document.getElementById('capture-area');
             const btns = document.querySelectorAll('.delete-btn');
             btns.forEach(b => b.style.visibility = 'hidden');
-            // إعادة الحجم للوضع الطبيعي قبل الالتقاط لضمان الجودة
             const originalTransform = node.style.transform;
             node.style.transform = "scale(1)";
-            
             try {
                 const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
                 const link = document.createElement('a');
-                link.download = 'اختبار_جاهز.png';
+                link.download = 'اختبار_أبو_نواف_احترافي.png';
                 link.href = dataUrl;
                 link.click();
             } catch (error) { alert("حدث خطأ"); }
-            
             node.style.transform = originalTransform;
             btns.forEach(b => b.style.visibility = 'visible');
         }
