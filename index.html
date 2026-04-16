@@ -2,9 +2,31 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة أبو نواف - النسخة المستقرة</title>
+    <title>نظام الاختبارات - أ/ عبدالعزيز الفيفي</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
+        /* إعدادات الطباعة لإلغاء الرابط والتاريخ من الأطراف */
+        @media print {
+            @page {
+                margin: 0; /* يلغي الرابط والتاريخ تماماً */
+            }
+            body {
+                margin: 1.6cm; /* يحدد هامش الورقة الداخلي فقط */
+            }
+            .controls, .delete-btn, .no-print {
+                display: none !important;
+            }
+            .preview-area {
+                background: white !important;
+                padding: 0 !important;
+            }
+            .word-page {
+                box-shadow: none !important;
+                border: none !important;
+                width: 100% !important;
+            }
+        }
+
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
@@ -20,7 +42,7 @@
         .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; }
         .word-page { width: 210mm; background: white; padding: 10mm; min-height: 280mm; position: relative; padding-top: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* تنسيق الجداول المستوحى من نموذجك المرفق */
+        /* تنسيق الجداول والأسئلة */
         .header-table { width: 100%; border-collapse: collapse; margin-top: 0; }
         .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
@@ -32,19 +54,12 @@
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
         .delete-btn { color: red; cursor: pointer; font-size: 10px; float: left; border: 1px solid red; padding: 1px 3px; border-radius: 3px; }
-
-        @media print {
-            .controls, .delete-btn { display: none !important; }
-            .preview-area { padding: 0; background: white; overflow: visible; }
-            body { height: auto; }
-            .word-page { box-shadow: none; width: 100%; border: none; }
-        }
     </style>
 </head>
 <body>
 
     <div class="controls">
-        <h3 style="text-align:center; color:#007bff; margin-top:0;">منصة أ/ عبدالعزيز الفيفي</h3>
+        <h3 class="no-print" style="text-align:center; color:#007bff; margin-top:0;">إعداد الاختبار</h3>
         <div class="config-box">
             <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
@@ -54,12 +69,12 @@
             <label>نوع الفقرة</label>
             <select id="qType" onchange="toggleInputs()"><option value="multi">اختياري</option><option value="tf">صح أو خطأ</option></select>
         </div>
-        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2" placeholder="اكتب السؤال هنا..."></textarea></div>
+        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2"></textarea></div>
         <div id="optsArea"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><input type="text" id="optA" placeholder="أ"><input type="text" id="optC" placeholder="ج"><input type="text" id="optB" placeholder="ب"><input type="text" id="optD" placeholder="د"></div></div>
         
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة (PDF)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة (بدور روابط)</button>
         <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة 4K</button>
         <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح الكل</button>
     </div>
@@ -75,8 +90,6 @@
 
     <script>
         let questions = [];
-        const logoBase64 = "data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAGQAAABkCAMAAAB49DuoAAAAAXNSR0IArs4c6QAAAARnQU1BAACxjwv8YQUAAAMAUExUR... (مدمج داخلياً لضمان العمل)"; 
-
         function toggleInputs() { document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'block' : 'none'; }
         
         function addQuestion() {
@@ -120,22 +133,13 @@
             const node = document.getElementById('capture-area');
             const btns = document.querySelectorAll('.delete-btn');
             btns.forEach(b => b.style.visibility = 'hidden');
-            
             try {
-                // استخدام إعدادات مخصصة لتجاوز أخطاء المتصفح
-                const dataUrl = await htmlToImage.toPng(node, { 
-                    pixelRatio: 2, 
-                    backgroundColor: '#ffffff',
-                    cacheBust: true 
-                });
+                const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
                 const link = document.createElement('a');
-                link.download = 'اختبار_أبو_نواف_4K.png';
+                link.download = 'اختبار_أبو_نواف.png';
                 link.href = dataUrl;
                 link.click();
-            } catch (error) { 
-                console.error(error);
-                alert("حدث خطأ تقني في استجابة المتصفح. يرجى المحاولة مرة أخرى أو استخدام زر 'الطباعة' وحفظه كـ PDF."); 
-            }
+            } catch (error) { alert("حدث خطأ، حاول مرة أخرى"); }
             btns.forEach(b => b.style.visibility = 'visible');
         }
 
