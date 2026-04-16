@@ -5,46 +5,45 @@
     <title>منصة الاختبارات - أ/ عبدالعزيز الفيفي</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
+        /* إعدادات الطباعة الاحترافية */
         @media print {
-            @page { 
-                margin: 0; 
-                size: A4 vertical;
-            }
-            body { margin: 0; padding: 0; }
+            @page { margin: 0; size: A4; }
+            body { margin: 0; padding: 0; background: white; }
             .controls, .delete-btn, .no-print { display: none !important; }
             .preview-area { background: white !important; padding: 0 !important; overflow: visible !important; display: block !important; }
             .word-page { 
                 box-shadow: none !important; border: none !important; 
-                width: 210mm !important; 
-                margin: 0 auto !important;
-                /* تعديل الهوامش: 0.5 سم من جميع الجهات لضمان عدم القص */
-                padding: 0.5cm !important; 
+                width: 210mm !important; margin: 0 auto !important;
+                /* زيادة الهامش الأيسر لضمان عدم القص */
+                padding-top: 0.7cm !important;
+                padding-bottom: 0.5cm !important;
+                padding-right: 0.5cm !important;
+                padding-left: 1.2cm !important; /* هامش أيسر آمن جداً */
                 transform: scale(1) !important;
             }
         }
 
+        /* تنسيق الشاشة */
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 3px; }
         input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
-        
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
         .btn-print { background: #17a2b8; }
         .btn-img { background: #6f42c1; }
-        .btn-clear { background: #6c757d; font-size: 12px; }
 
         .preview-area { flex-grow: 1; padding: 5px; overflow: hidden; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
         .word-page { 
             width: 210mm; background: white; 
-            padding: 0.5cm; /* هوامش متساوية تمنع اختفاء الجزء الأيسر */
+            padding: 0.7cm 0.5cm 0.5cm 1.2cm; /* هوامش الشاشة */
             min-height: 285mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.8); 
-            transform-origin: top center;
+            transform: scale(0.78); transform-origin: top center;
         }
 
+        /* تنسيق الجداول */
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 4px; }
@@ -61,7 +60,7 @@
 <body>
 
     <div class="controls">
-        <h3 class="no-print" style="text-align:center; color:#007bff; margin-top:0;">إعداد اختبار أ/ عبدالعزيز</h3>
+        <h3 style="text-align:center; color:#007bff; margin-top:0;">منصة أ/ عبدالعزيز</h3>
         <div class="config-box">
             <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
@@ -76,9 +75,8 @@
         
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة (بدون روابط)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار</button>
         <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة</button>
-        <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح الكل</button>
     </div>
 
     <div class="preview-area">
@@ -93,7 +91,6 @@
     <script>
         let questions = [];
         function toggleInputs() { document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'block' : 'none'; }
-        
         function addQuestion() {
             const txt = document.getElementById('qText').value;
             if(!txt) return;
@@ -101,36 +98,20 @@
             updatePreview();
             document.getElementById('qText').value = '';
         }
-
-        function removeQ(index) { questions.splice(index, 1); updatePreview(); }
-        function clearAll() { if(confirm("هل تريد مسح جميع الأسئلة؟")) { questions = []; updatePreview(); } }
-
+        function removeQ(i) { questions.splice(i, 1); updatePreview(); }
         function updatePreview() {
             const school = document.getElementById('cfgSchool').value;
             const subject = document.getElementById('cfgSubject').value;
             const teacher = document.getElementById('cfgTeacher').value;
-            
-            document.getElementById('headerTbl').innerHTML = `
-                <tr>
-                    <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>تعليم الرياض<br>${school}</td>
-                    <td width="40%">اختبار: ${subject}<br>للعام الدراسي: 1447هـ</td>
-                    <td width="30%">الدرجة النهائية: 40<br>الزمن: ساعتان ونصف</td>
-                </tr>`;
-
+            document.getElementById('headerTbl').innerHTML = `<tr><td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>تعليم الرياض<br>${school}</td><td width="40%">اختبار: ${subject}<br>للعام الدراسي: 1447هـ</td><td width="30%">الدرجة النهائية: 40<br>الزمن: ساعتان ونصف</td></tr>`;
             let qHtml = '';
             questions.forEach((q, i) => {
-                let opts = q.type === 'multi' ? `
-                    <div class="options-container">
-                        <div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div>
-                        <div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div>
-                    </div>` : `
-                    <div class="options-container" style="margin-top:20px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
+                let opts = q.type === 'multi' ? `<div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>` : `<div class="options-container" style="margin-top:20px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
                 qHtml += `<div class="q-box"><span class="delete-btn" onclick="removeQ(${i})">حذف</span><div><span class="q-num">${i+1}</span><b>${q.text}</b></div>${opts}</div>`;
             });
             document.getElementById('qGrid').innerHTML = qHtml;
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
         }
-
         async function saveAsImage() {
             const node = document.getElementById('capture-area');
             const btns = document.querySelectorAll('.delete-btn');
@@ -140,14 +121,13 @@
             try {
                 const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
                 const link = document.createElement('a');
-                link.download = 'اختبار_أبو_نواف.png';
+                link.download = 'اختبار_جاهز.png';
                 link.href = dataUrl;
                 link.click();
             } catch (error) { alert("حدث خطأ"); }
             node.style.transform = originalTransform;
             btns.forEach(b => b.style.visibility = 'visible');
         }
-
         updatePreview();
     </script>
 </body>
