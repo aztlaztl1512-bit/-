@@ -2,170 +2,172 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>منصة أبو نواف - النسخة الاحترافية النهائية</title>
+    <title>منصة أبو نواف لنمذجة الاختبارات</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Amiri:wght@400;700&display=swap');
+        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; padding: 0; background-color: #f4f4f9; }
         
-        * { box-sizing: border-box; }
-        body { font-family: 'Amiri', serif; margin: 0; background-color: #e9ecef; }
+        /* واجهة الإدخال - لن تظهر في الطباعة */
+        .no-print-area { background: #ffffff; padding: 20px; border-bottom: 3px solid #007bff; position: sticky; top: 0; z-index: 100; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
+        .config-section { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 15px; background: #f0f7ff; padding: 15px; border-radius: 8px; }
+        .input-group { display: flex; gap: 10px; flex-wrap: wrap; margin-bottom: 10px; }
+        input, textarea, select { padding: 8px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; }
+        button { padding: 10px 20px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; transition: 0.3s; color: white; }
+        .btn-add { background: #007bff; }
+        .btn-pdf { background: #28a745; margin-right: 10px; }
         
-        .no-print-area { background: #fff; padding: 20px; border-bottom: 4px solid #1a73e8; position: sticky; top: 0; z-index: 1000; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        .config-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; margin-bottom: 15px; }
-        input, textarea, select { padding: 10px; border: 1px solid #ccc; border-radius: 5px; font-size: 14px; width: 100%; }
-        .btn { padding: 12px 20px; cursor: pointer; border: none; border-radius: 5px; font-weight: bold; color: white; }
-        .btn-add { background: #1a73e8; }
-        .btn-pdf { background: #d32f2f; margin-right: 10px; }
-        
-        /* إعدادات الصفحة - دقة متناهية */
+        /* تنسيق ورقة الاختبار */
         .page { 
-            width: 210mm; 
-            height: 296.5mm; /* طول A4 دقيق */
-            padding: 12mm; 
-            margin: 10px auto; 
-            background: white; 
-            position: relative;
-            overflow: hidden;
-            border: 1px solid #ddd;
+            width: 210mm; min-height: 296mm; padding: 10mm; margin: 10px auto; 
+            background: white; box-sizing: border-box; page-break-after: always;
+            position: relative; border: 1px solid #eee;
         }
+        
+        .header-table { width: 100%; border: 2px solid black; border-collapse: collapse; margin-bottom: 10px; }
+        .header-table td { border: 1px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; }
+        
+        .student-table { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+        .student-table td { border: 2px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
 
-        .official-header { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
-        .official-header td { border: 2px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.4; }
-        .student-info { width: 100%; border-collapse: collapse; margin-bottom: 15px; }
-        .student-info td { border: 2px solid black; padding: 8px; font-weight: bold; font-size: 11pt; }
+        .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; }
+        .q-box { border-bottom: 2px solid black; border-left: 2px solid black; padding: 10px; min-height: 100px; box-sizing: border-box; display: flex; flex-direction: column; }
+        
+        /* رقم السؤال داخل مربع */
+        .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #f0f0f0; margin-left: 8px; }
+        .q-text { font-weight: 900; font-size: 12pt; display: inline; color: black; }
+        
+        /* الخيارات داخل دوائر */
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-top: auto; padding-top: 10px; }
+        .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
+        .bubble { display: inline-block; width: 20px; height: 20px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 18px; margin-left: 6px; font-size: 10pt; }
 
-        /* شبكة الأسئلة - تم رفع الارتفاع لتملأ الصفحة */
-        .questions-grid { 
-            display: grid; 
-            grid-template-columns: 1fr 1fr; 
-            border-top: 2.5px solid black; 
-            border-right: 2.5px solid black;
-        }
-        .q-box { 
-            border-bottom: 2px solid black; 
-            border-left: 2px solid black; 
-            padding: 12px; 
-            height: 125px; /* رفع الارتفاع لتوزيع الأسئلة على كامل الصفحة */
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-        }
-        .q-num { display: inline-block; width: 26px; height: 26px; border: 2px solid black; text-align: center; line-height: 24px; font-weight: bold; background: #eee; margin-left: 10px; }
-        .q-text { font-weight: bold; font-size: 12.5pt; }
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; }
-        .opt-item { display: flex; align-items: center; font-size: 11.5pt; font-weight: bold; }
-        .bubble { display: inline-block; width: 22px; height: 22px; border: 1.8px solid black; border-radius: 50%; text-align: center; line-height: 20px; margin-left: 8px; font-size: 10pt; }
-
-        @media print { 
-            body { background: transparent; }
-            .page { margin: 0; border: none; box-shadow: none; page-break-after: always; }
-        }
+        @media print { .no-print-area { display: none; } .page { box-shadow: none; margin: 0; border: none; } }
     </style>
 </head>
 <body>
 
-<div class="no-print-area">
-    <div class="config-grid">
-        <input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد">
-        <input type="text" id="cfgSubject" value="الكفايات اللغوية">
-        <input type="text" id="cfgYear" value="1447هـ">
-        <input type="text" id="cfgTeacher" value="عبدالعزيز الفيفي">
-    </div>
-    <div style="display:flex; gap:10px; align-items:flex-end;">
-        <select id="qType" onchange="document.getElementById('optInp').style.display=(this.value==='multi'?'flex':'none')" style="width:120px">
-            <option value="multi">اختياري</option>
-            <option value="tf">صح/خطأ</option>
-        </select>
-        <textarea id="qText" placeholder="نص السؤال..." style="flex:2; height:42px;"></textarea>
-        <div id="optInp" style="display:flex; gap:5px;">
-            <input type="text" id="optA" placeholder="أ" style="width:60px">
-            <input type="text" id="optB" placeholder="ب" style="width:60px">
-            <input type="text" id="optC" placeholder="ج" style="width:60px">
-            <input type="text" id="optD" placeholder="د" style="width:60px">
+    <div class="no-print-area">
+        <div class="config-section">
+            <input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" placeholder="اسم المدرسة">
+            <input type="text" id="cfgSubject" value="الكفايات اللغوية" placeholder="المادة">
+            <input type="text" id="cfgYear" value="1447هـ" placeholder="العام الدراسي">
+            <input type="text" id="cfgTeacher" value="عبدالعزيز الفيفي" placeholder="اسم المعلم">
         </div>
-        <button class="btn btn-add" onclick="addQuestion()">إضافة</button>
-        <button class="btn btn-pdf" onclick="generatePDF()">حفظ PDF (دقة 100%)</button>
+
+        <div class="input-group">
+            <select id="qType" onchange="toggleInputs()">
+                <option value="multi">اختياري</option>
+                <option value="tf">صح أو خطأ</option>
+            </select>
+            <textarea id="qText" placeholder="اكتب السؤال هنا..." style="flex:2"></textarea>
+            <div id="optsArea" style="display:flex; gap:5px">
+                <input type="text" id="optA" placeholder="أ" style="width:60px">
+                <input type="text" id="optB" placeholder="ب" style="width:60px">
+                <input type="text" id="optC" placeholder="ج" style="width:60px">
+                <input type="text" id="optD" placeholder="د" style="width:60px">
+            </div>
+            <button class="btn-add" onclick="addQuestion()">+ إضافة</button>
+            <button class="btn-pdf" onclick="generatePDF()">حفظ PDF بدقة عالية</button>
+        </div>
     </div>
-</div>
 
-<div id="exam-container"></div>
+    <div id="exam-content"></div>
 
-<script>
-    let questions = [];
+    <script>
+        let allQuestions = [];
 
-    function addQuestion() {
-        const text = document.getElementById('qText').value;
-        if(!text) return;
-        questions.push({
-            type: document.getElementById('qType').value,
-            text: text,
-            a: document.getElementById('optA').value, b: document.getElementById('optB').value,
-            c: document.getElementById('optC').value, d: document.getElementById('optD').value
-        });
-        renderExam();
-        document.getElementById('qText').value = '';
-    }
-
-    function renderExam() {
-        const container = document.getElementById('exam-container');
-        container.innerHTML = '';
-        const cfg = { school: document.getElementById('cfgSchool').value, subject: document.getElementById('cfgSubject').value, year: document.getElementById('cfgYear').value, teacher: document.getElementById('cfgTeacher').value };
-
-        for (let i = 0; i < questions.length; i += 12) {
-            const chunk = questions.slice(i, i + 12);
-            container.innerHTML += createPage(chunk, i, cfg);
+        function toggleInputs() {
+            document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'flex' : 'none';
         }
-    }
 
-    function createPage(chunk, startIdx, cfg) {
-        let qHtml = '';
-        chunk.forEach((q, idx) => {
-            let opts = q.type === 'multi' ? `
-                <div class="options-container">
-                    <div class="opt-item"><span class="bubble">أ</span>${q.a}</div><div class="opt-item"><span class="bubble">ج</span>${q.c}</div>
-                    <div class="opt-item"><span class="bubble">ب</span>${q.b}</div><div class="opt-item"><span class="bubble">د</span>${q.d}</div>
-                </div>` : `
-                <div class="options-container">
-                    <div class="opt-item"><span class="bubble">✓</span> صح</div><div class="opt-item"><span class="bubble">✗</span> خطأ</div>
+        function addQuestion() {
+            const q = {
+                type: document.getElementById('qType').value,
+                text: document.getElementById('qText').value,
+                a: document.getElementById('optA').value,
+                b: document.getElementById('optB').value,
+                c: document.getElementById('optC').value,
+                d: document.getElementById('optD').value
+            };
+            if(!q.text) return alert("الرجاء كتابة السؤال");
+            allQuestions.push(q);
+            updateView();
+            document.getElementById('qText').value = '';
+        }
+
+        function updateView() {
+            const container = document.getElementById('exam-content');
+            container.innerHTML = '';
+            const cfg = {
+                school: document.getElementById('cfgSchool').value,
+                subject: document.getElementById('cfgSubject').value,
+                year: document.getElementById('cfgYear').value,
+                teacher: document.getElementById('cfgTeacher').value
+            };
+            
+            for (let i = 0; i < allQuestions.length; i += 12) {
+                const chunk = allQuestions.slice(i, i + 12);
+                container.innerHTML += createPage(chunk, i, cfg);
+            }
+        }
+
+        function createPage(questions, startIndex, cfg) {
+            let questionsHtml = '';
+            questions.forEach((q, idx) => {
+                let opts = q.type === 'multi' ? `
+                    <div class="options-container">
+                        <div class="option"><span class="bubble">أ</span>${q.a}</div>
+                        <div class="option"><span class="bubble">ج</span>${q.c}</div>
+                        <div class="option"><span class="bubble">ب</span>${q.b}</div>
+                        <div class="option"><span class="bubble">د</span>${q.d}</div>
+                    </div>` : `
+                    <div class="options-container">
+                        <div class="option"><span class="bubble">✓</span> صح</div>
+                        <div class="option"><span class="bubble">✗</span> خطأ</div>
+                    </div>`;
+
+                questionsHtml += `
+                    <div class="q-box">
+                        <div>
+                            <span class="q-num">${startIndex + idx + 1}</span>
+                            <span class="q-text">${q.text}</span>
+                        </div>
+                        ${opts}
+                    </div>`;
+            });
+
+            return `
+                <div class="page">
+                    <table class="header-table">
+                        <tr>
+                            <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>${cfg.school}</td>
+                            <td width="40%"><img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="70"><br>اختبار: ${cfg.subject}</td>
+                            <td width="30%">العام: ${cfg.year}<br>الدرجة: 40<br>الزمن: ساعتان ونصف</td>
+                        </tr>
+                    </table>
+                    <table class="student-table">
+                        <tr>
+                            <td>اسم الطالب: ...........................................................</td>
+                            <td width="20%">الصف: ...........</td>
+                            <td width="20%">رقم الجلوس: .......</td>
+                        </tr>
+                    </table>
+                    <div class="questions-grid">${questionsHtml}</div>
+                    <div style="margin-top:15px; text-align:center; font-weight:bold; font-size:10pt;">مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${cfg.teacher}</div>
                 </div>`;
-            qHtml += `<div class="q-box"><div><span class="q-num">${startIdx + idx + 1}</span><span class="q-text">${q.text}</span></div>${opts}</div>`;
-        });
-
-        // إذا كانت الأسئلة أقل من 12، نكمل المربعات فارغة للحفاظ على التنسيق
-        while (chunk.length < 12) {
-            qHtml += `<div class="q-box" style="border: 2px solid black; border-top:none; border-right:none;"></div>`;
-            chunk.length++;
         }
 
-        return `
-            <div class="page">
-                <table class="official-header">
-                    <tr>
-                        <td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>${cfg.school}</td>
-                        <td width="40%"><img src="https://upload.wikimedia.org/wikipedia/ar/thumb/2/22/Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg/1200px-Ministry_of_Education_%28Saudi_Arabia%29_Logo.svg.png" width="60"><br>اختبار مقرر: ${cfg.subject}</td>
-                        <td width="30%">العام الدراسي: ${cfg.year}<br>الدرجة: 40<br>الزمن: ساعتان ونصف</td>
-                    </tr>
-                </table>
-                <table class="student-info">
-                    <tr><td>اسم الطالب: ...........................................................</td><td>الصف: ...........</td><td>رقم الجلوس: .......</td></tr>
-                </table>
-                <div class="questions-grid">${qHtml}</div>
-                <div style="margin-top:10px; text-align:center; font-weight:bold; font-size:10pt;">مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${cfg.teacher}</div>
-            </div>`;
-    }
-
-    function generatePDF() {
-        const element = document.getElementById('exam-container');
-        const opt = {
-            margin: 0,
-            filename: 'اختبار_أبو_نواف_المحسن.pdf',
-            image: { type: 'jpeg', quality: 1.0 },
-            html2canvas: { scale: 3, useCORS: true, letterRendering: true },
-            jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
-            pagebreak: { mode: 'css', after: '.page' }
-        };
-        html2pdf().set(opt).from(element).save();
-    }
-</script>
+        function generatePDF() {
+            const element = document.getElementById('exam-content');
+            html2pdf().set({
+                margin: 0,
+                filename: 'اختبار_أبو_نواف_الرسمي.pdf',
+                image: { type: 'jpeg', quality: 1.0 },
+                html2canvas: { scale: 3, useCORS: true },
+                jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+                pagebreak: { mode: 'css', after: '.page' }
+            }).from(element).save();
+        }
+    </script>
 </body>
 </html>
