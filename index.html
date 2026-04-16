@@ -2,16 +2,17 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام الاختبارات - أ/ عبدالعزيز الفيفي</title>
+    <title>نظام اختبارات ثانوية الأمير عبدالمجيد</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
-        /* إعدادات الطباعة لإلغاء الرابط والتاريخ من الأطراف */
+        /* إعدادات الطباعة الاحترافية */
         @media print {
             @page {
-                margin: 0; /* يلغي الرابط والتاريخ تماماً */
+                margin: 0; /* يلغي الرابط والتاريخ والتذييل التلقائي للمتصفح */
             }
             body {
-                margin: 1.6cm; /* يحدد هامش الورقة الداخلي فقط */
+                margin: 0;
+                padding: 0;
             }
             .controls, .delete-btn, .no-print {
                 display: none !important;
@@ -19,14 +20,21 @@
             .preview-area {
                 background: white !important;
                 padding: 0 !important;
+                display: block !important;
             }
             .word-page {
                 box-shadow: none !important;
                 border: none !important;
-                width: 100% !important;
+                width: 210mm !important;
+                margin: 0 auto !important;
+                /* إضافة مساحة أمان علوية لعدم قص الكليشة */
+                padding-top: 1.2cm !important; 
+                padding-left: 1cm !important;
+                padding-right: 1cm !important;
             }
         }
 
+        /* تنسيق الشاشة العادي */
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
@@ -40,9 +48,9 @@
         .btn-clear { background: #6c757d; font-size: 12px; }
 
         .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; }
-        .word-page { width: 210mm; background: white; padding: 10mm; min-height: 280mm; position: relative; padding-top: 0; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        .word-page { width: 210mm; background: white; padding: 10mm; min-height: 280mm; position: relative; padding-top: 5mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
 
-        /* تنسيق الجداول والأسئلة */
+        /* تنسيق الجداول (مطابق للنموذج الرسمي) */
         .header-table { width: 100%; border-collapse: collapse; margin-top: 0; }
         .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
@@ -74,7 +82,7 @@
         
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة (بدور روابط)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة</button>
         <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة 4K</button>
         <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح الكل</button>
     </div>
@@ -139,7 +147,7 @@
                 link.download = 'اختبار_أبو_نواف.png';
                 link.href = dataUrl;
                 link.click();
-            } catch (error) { alert("حدث خطأ، حاول مرة أخرى"); }
+            } catch (error) { alert("حدث خطأ"); }
             btns.forEach(b => b.style.visibility = 'visible');
         }
 
