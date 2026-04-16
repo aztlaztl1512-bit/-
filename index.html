@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>منصة اختبارات أ/ عبدالعزيز الفيفي</title>
     <style>
-        /* إعدادات الطباعة الاحترافية */
+        /* إعدادات الطباعة النهائية لضمان عدم القص */
         @media print {
             @page { margin: 0; size: A4; }
             body { margin: 0; padding: 0; background: white; }
@@ -17,37 +17,28 @@
             }
         }
 
-        /* تنسيق الشاشة مع تفعيل التمرير */
+        /* تنسيق الشاشة */
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
-        .input-group { margin-bottom: 10px; }
-        label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 3px; }
-        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+        .input-group { margin-bottom: 12px; }
+        label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 5px; color: #333; }
+        input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; box-sizing: border-box; }
         
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
-        .btn-add { background: #007bff; }
+        .btn-add { background: #28a745; }
         .btn-print { background: #17a2b8; }
 
-        /* تعديل منطقة المعاينة للسماح بالنزول للموس */
-        .preview-area { 
-            flex-grow: 1; 
-            padding: 20px; 
-            overflow-y: auto; /* يسمح بالنزول لرؤية باقي الأسئلة */
-            background: #525659; 
-            display: flex; 
-            justify-content: center; 
-            align-items: flex-start; 
-        }
+        /* منطقة المعاينة - تفعيل التمرير */
+        .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
         .word-page { 
             width: 210mm; background: white; padding: 10mm;
             min-height: 285mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.85); /* حجم مناسب للمعاينة */
-            transform-origin: top center;
-            margin-bottom: 50px; /* مسافة إضافية في الأسفل لراحة التصفح */
+            transform: scale(0.85); transform-origin: top center;
+            margin-bottom: 50px;
         }
 
-        /* تنسيق الجداول والأسئلة */
+        /* تنسيق الاختبار */
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
@@ -55,6 +46,11 @@
         .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
         .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 110px; position: relative; }
         .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #eee; margin-left: 8px; }
+        
+        /* تنسيق النصوص والأسئلة المقالية */
+        .context-box { background: #f9f9f9; border: 1px dashed #666; padding: 5px; margin: 5px 0; font-size: 11pt; border-radius: 4px; }
+        .answer-line { border-bottom: 1px dotted #000; height: 25px; margin-top: 10px; width: 95%; }
+
         .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
         .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
@@ -70,16 +66,38 @@
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
             <div class="input-group"><label>المعلم</label><input type="text" id="cfgTeacher" value="عبدالعزيز الفيفي" oninput="updatePreview()"></div>
         </div>
-        <div class="input-group">
-            <label>نوع الفقرة</label>
-            <select id="qType" onchange="toggleInputs()"><option value="multi">اختياري</option><option value="tf">صح أو خطأ</option></select>
-        </div>
-        <div class="input-group"><label>نص السؤال</label><textarea id="qText" rows="2"></textarea></div>
-        <div id="optsArea"><div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;"><input type="text" id="optA" placeholder="أ"><input type="text" id="optC" placeholder="ج"><input type="text" id="optB" placeholder="ب"><input type="text" id="optD" placeholder="د"></div></div>
         
-        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
+        <div class="input-group">
+            <label>نوع السؤال</label>
+            <select id="qType" onchange="toggleInputs()">
+                <option value="multi">1- اختياري</option>
+                <option value="tf">2- صح أو خطأ</option>
+                <option value="sentence">3- في جملة مفيدة</option>
+                <option value="parse">4- أعرب ما تحته خط</option>
+                <option value="extract">5- استخرج من النص</option>
+                <option value="fill">6- كمل الفراغ</option>
+            </select>
+        </div>
+
+        <div id="contextArea" style="display:none;" class="input-group">
+            <label id="contextLabel">النص / الجملة المراد إعرابها</label>
+            <textarea id="qContext" rows="2" placeholder="ضع النص هنا..."></textarea>
+        </div>
+
+        <div class="input-group"><label id="mainQLabel">نص السؤال</label><textarea id="qText" rows="2"></textarea></div>
+        
+        <div id="optsArea">
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
+                <input type="text" id="optA" placeholder="أ">
+                <input type="text" id="optC" placeholder="ج">
+                <input type="text" id="optB" placeholder="ب">
+                <input type="text" id="optD" placeholder="د">
+            </div>
+        </div>
+        
+        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال للنموذج</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار (جاهز)</button>
     </div>
 
     <div class="preview-area">
@@ -93,28 +111,71 @@
 
     <script>
         let questions = [];
-        function toggleInputs() { document.getElementById('optsArea').style.display = (document.getElementById('qType').value === 'multi') ? 'block' : 'none'; }
+
+        function toggleInputs() {
+            const type = document.getElementById('qType').value;
+            document.getElementById('optsArea').style.display = (type === 'multi') ? 'block' : 'none';
+            
+            // إظهار مربع النص الإضافي لأنواع معينة
+            if (type === 'parse' || type === 'extract') {
+                document.getElementById('contextArea').style.display = 'block';
+                document.getElementById('contextLabel').innerText = (type === 'parse') ? "الجملة المراد إعرابها:" : "النص المستخرج منه:";
+                document.getElementById('mainQLabel').innerText = "المطلوب إعرابه / استخراجه:";
+            } else {
+                document.getElementById('contextArea').style.display = 'none';
+                document.getElementById('mainQLabel').innerText = "نص السؤال:";
+            }
+        }
+        
         function addQuestion() {
-            const txt = document.getElementById('qText').value;
-            if(!txt) return;
-            questions.push({ type: document.getElementById('qType').value, text: txt, a: document.getElementById('optA').value, b: document.getElementById('optB').value, c: document.getElementById('optC').value, d: document.getElementById('optD').value });
+            const type = document.getElementById('qType').value;
+            const text = document.getElementById('qText').value;
+            const context = document.getElementById('qContext').value;
+            if(!text) return;
+
+            questions.push({ 
+                type: type, 
+                text: text, 
+                context: context,
+                a: document.getElementById('optA').value, 
+                b: document.getElementById('optB').value, 
+                c: document.getElementById('optC').value, 
+                d: document.getElementById('optD').value 
+            });
             updatePreview();
             document.getElementById('qText').value = '';
+            document.getElementById('qContext').value = '';
         }
+
         function removeQ(i) { questions.splice(i, 1); updatePreview(); }
+
         function updatePreview() {
             const school = document.getElementById('cfgSchool').value;
             const subject = document.getElementById('cfgSubject').value;
             const teacher = document.getElementById('cfgTeacher').value;
+            
             document.getElementById('headerTbl').innerHTML = `<tr><td width="30%">المملكة العربية السعودية<br>وزارة التعليم<br>تعليم الرياض<br>${school}</td><td width="40%">اختبار: ${subject}<br>للعام الدراسي: 1447هـ</td><td width="30%">الدرجة النهائية: 40<br>الزمن: ساعتان ونصف</td></tr>`;
+            
             let qHtml = '';
             questions.forEach((q, i) => {
-                let opts = q.type === 'multi' ? `<div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>` : `<div class="options-container" style="margin-top:20px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
-                qHtml += `<div class="q-box"><span class="delete-btn" onclick="removeQ(${i})">حذف</span><div><span class="q-num">${i+1}</span><b>${q.text}</b></div>${opts}</div>`;
+                let content = '';
+                if (q.type === 'multi') {
+                    content = `<div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>`;
+                } else if (q.type === 'tf') {
+                    content = `<div class="options-container" style="margin-top:20px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
+                } else if (q.type === 'parse' || q.type === 'extract') {
+                    content = `<div class="context-box"><b>النص:</b> ${q.context}</div><div><b>المطلوب:</b> ${q.text}</div><div class="answer-line"></div>`;
+                } else {
+                    // جمل مفيدة وفراغات
+                    content = `<div>${q.text}</div><div class="answer-line"></div>`;
+                }
+
+                qHtml += `<div class="q-box"><span class="delete-btn no-print" onclick="removeQ(${i})">حذف</span><div><span class="q-num">${i+1}</span><b>${q.text && (q.type !== 'parse' && q.type !== 'extract') ? q.text : ''}</b></div>${content}</div>`;
             });
             document.getElementById('qGrid').innerHTML = qHtml;
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
         }
+
         updatePreview();
     </script>
 </body>
