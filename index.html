@@ -2,56 +2,52 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام اختبارات ثانوية الأمير عبدالمجيد</title>
+    <title>منصة الاختبارات - أ/ عبدالعزيز الفيفي</title>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
     <style>
-        /* إعدادات الطباعة الاحترافية */
+        /* إعدادات الطباعة النهائية */
         @media print {
-            @page {
-                margin: 0; /* يلغي الرابط والتاريخ والتذييل التلقائي للمتصفح */
-            }
-            body {
-                margin: 0;
-                padding: 0;
-            }
-            .controls, .delete-btn, .no-print {
-                display: none !important;
-            }
-            .preview-area {
-                background: white !important;
-                padding: 0 !important;
-                display: block !important;
-            }
-            .word-page {
-                box-shadow: none !important;
-                border: none !important;
-                width: 210mm !important;
-                margin: 0 auto !important;
-                /* إضافة مساحة أمان علوية لعدم قص الكليشة */
-                padding-top: 1.2cm !important; 
-                padding-left: 1cm !important;
-                padding-right: 1cm !important;
+            @page { margin: 0; }
+            body { margin: 0; padding: 0; }
+            .controls, .delete-btn, .no-print { display: none !important; }
+            .preview-area { background: white !important; padding: 0 !important; overflow: visible !important; display: block !important; }
+            .word-page { 
+                box-shadow: none !important; border: none !important; 
+                width: 210mm !important; margin: 0 auto !important;
+                padding-top: 1.5cm !important; /* مسافة أمان علوية للكليشة */
+                padding-left: 1cm !important; padding-right: 1cm !important;
+                transform: scale(1) !important; /* إلغاء التصغير عند الطباعة */
             }
         }
 
-        /* تنسيق الشاشة العادي */
-        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; }
+        /* تنسيق الشاشة ومنع الأسهم */
+        body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 3px; }
         input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+        
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
         .btn-print { background: #17a2b8; }
         .btn-img { background: #6f42c1; }
         .btn-clear { background: #6c757d; font-size: 12px; }
 
-        .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; }
-        .word-page { width: 210mm; background: white; padding: 10mm; min-height: 280mm; position: relative; padding-top: 5mm; box-shadow: 0 0 20px rgba(0,0,0,0.5); }
+        /* منطقة المعاينة الذكية (تمنع الأسهم) */
+        .preview-area { 
+            flex-grow: 1; padding: 10px; overflow: hidden; 
+            background: #525659; display: flex; justify-content: center; align-items: flex-start; 
+        }
+        .word-page { 
+            width: 210mm; background: white; padding: 10mm; min-height: 280mm; 
+            position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
+            transform: scale(0.85); /* تصغير المعاينة لتناسب الشاشة */
+            transform-origin: top center;
+        }
 
-        /* تنسيق الجداول (مطابق للنموذج الرسمي) */
-        .header-table { width: 100%; border-collapse: collapse; margin-top: 0; }
+        /* تنسيق الجداول */
+        .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 5px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .student-info td { border: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
@@ -67,7 +63,7 @@
 <body>
 
     <div class="controls">
-        <h3 class="no-print" style="text-align:center; color:#007bff; margin-top:0;">إعداد الاختبار</h3>
+        <h3 class="no-print" style="text-align:center; color:#007bff; margin-top:0;">إعداد اختبار أ/ عبدالعزيز</h3>
         <div class="config-box">
             <div class="input-group"><label>المدرسة</label><input type="text" id="cfgSchool" value="ثانوية الأمير عبدالمجيد" oninput="updatePreview()"></div>
             <div class="input-group"><label>المادة</label><input type="text" id="cfgSubject" value="الكفايات اللغوية" oninput="updatePreview()"></div>
@@ -82,7 +78,7 @@
         
         <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة نظيفة</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار</button>
         <button class="btn btn-img" onclick="saveAsImage()">🖼️ حفظ كصورة 4K</button>
         <button class="btn btn-clear" onclick="clearAll()">🗑️ مسح الكل</button>
     </div>
@@ -141,13 +137,19 @@
             const node = document.getElementById('capture-area');
             const btns = document.querySelectorAll('.delete-btn');
             btns.forEach(b => b.style.visibility = 'hidden');
+            // إعادة الحجم للوضع الطبيعي قبل الالتقاط لضمان الجودة
+            const originalTransform = node.style.transform;
+            node.style.transform = "scale(1)";
+            
             try {
                 const dataUrl = await htmlToImage.toPng(node, { pixelRatio: 2, backgroundColor: '#ffffff' });
                 const link = document.createElement('a');
-                link.download = 'اختبار_أبو_نواف.png';
+                link.download = 'اختبار_جاهز.png';
                 link.href = dataUrl;
                 link.click();
             } catch (error) { alert("حدث خطأ"); }
+            
+            node.style.transform = originalTransform;
             btns.forEach(b => b.style.visibility = 'visible');
         }
 
