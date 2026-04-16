@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <title>منصة اختبارات أ/ عبدالعزيز الفيفي</title>
     <style>
-        /* إعدادات الطباعة النهائية لضمان عدم القص */
+        /* إعدادات الطباعة النهائية */
         @media print {
             @page { margin: 0; size: A4; }
             body { margin: 0; padding: 0; background: white; }
@@ -29,31 +29,30 @@
         .btn-add { background: #28a745; }
         .btn-print { background: #17a2b8; }
 
-        /* منطقة المعاينة - تفعيل التمرير */
         .preview-area { flex-grow: 1; padding: 20px; overflow-y: auto; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
         .word-page { 
             width: 210mm; background: white; padding: 10mm;
             min-height: 285mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.85); transform-origin: top center;
-            margin-bottom: 50px;
+            transform: scale(0.82); transform-origin: top center; margin-bottom: 50px;
         }
 
-        /* تنسيق الاختبار */
+        /* تنسيق الجدول والأسئلة */
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
         .student-info td { border: 1.5px solid black; padding: 6px; font-weight: bold; font-size: 11pt; }
         .questions-grid { display: grid; grid-template-columns: 1fr 1fr; border-top: 2px solid black; border-right: 2px solid black; margin-top: 10px; }
-        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 110px; position: relative; }
+        .q-box { border-bottom: 1.5px solid black; border-left: 1.5px solid black; padding: 10px; min-height: 115px; position: relative; }
         .q-num { display: inline-block; width: 22px; height: 22px; border: 1.5px solid black; text-align: center; line-height: 20px; font-weight: bold; background: #eee; margin-left: 8px; }
         
-        /* تنسيق النصوص والأسئلة المقالية */
-        .context-box { background: #f9f9f9; border: 1px dashed #666; padding: 5px; margin: 5px 0; font-size: 11pt; border-radius: 4px; }
-        .answer-line { border-bottom: 1px dotted #000; height: 25px; margin-top: 10px; width: 95%; }
+        /* عناوين الأنواع */
+        .q-type-label { color: #d63031; font-size: 10pt; font-weight: bold; display: block; margin-bottom: 4px; border-bottom: 1px solid #eee; width: fit-content; }
+        .context-box { background: #fdfdfd; border: 1px dashed #999; padding: 6px; margin: 5px 0; font-size: 11pt; border-radius: 4px; line-height: 1.4; }
+        .answer-line { border-bottom: 1px dotted #000; height: 22px; margin-top: 8px; width: 90%; }
 
-        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 10px; }
+        .options-container { display: grid; grid-template-columns: 1fr 1fr; gap: 4px; margin-top: 8px; }
         .option { display: flex; align-items: center; font-size: 11pt; font-weight: bold; }
-        .bubble { display: inline-block; width: 18px; height: 18px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 16px; margin-left: 6px; }
+        .bubble { display: inline-block; width: 17px; height: 17px; border: 1.5px solid black; border-radius: 50%; text-align: center; line-height: 15px; margin-left: 6px; font-size: 9pt; }
         .delete-btn { color: red; cursor: pointer; font-size: 10px; float: left; border: 1px solid red; padding: 1px 3px; border-radius: 3px; }
     </style>
 </head>
@@ -70,21 +69,21 @@
         <div class="input-group">
             <label>نوع السؤال</label>
             <select id="qType" onchange="toggleInputs()">
-                <option value="multi">1- اختياري</option>
-                <option value="tf">2- صح أو خطأ</option>
-                <option value="sentence">3- في جملة مفيدة</option>
-                <option value="parse">4- أعرب ما تحته خط</option>
-                <option value="extract">5- استخرج من النص</option>
-                <option value="fill">6- كمل الفراغ</option>
+                <option value="اختياري">1- اختياري</option>
+                <option value="صح أو خطأ">2- صح أو خطأ</option>
+                <option value="ضع في جملة مفيدة">3- في جملة مفيدة</option>
+                <option value="أعرب ما تحته خط">4- أعرب ما تحته خط</option>
+                <option value="استخرج من النص">5- استخرج من النص</option>
+                <option value="أكمل الفراغ بما يناسبه">6- كمل الفراغ</option>
             </select>
         </div>
 
         <div id="contextArea" style="display:none;" class="input-group">
-            <label id="contextLabel">النص / الجملة المراد إعرابها</label>
-            <textarea id="qContext" rows="2" placeholder="ضع النص هنا..."></textarea>
+            <label id="contextLabel">النص أو الجملة الأساسية</label>
+            <textarea id="qContext" rows="2" placeholder="اكتب النص هنا..."></textarea>
         </div>
 
-        <div class="input-group"><label id="mainQLabel">نص السؤال</label><textarea id="qText" rows="2"></textarea></div>
+        <div class="input-group"><label id="mainQLabel">نص السؤال / المطلوب</label><textarea id="qText" rows="2"></textarea></div>
         
         <div id="optsArea">
             <div style="display:grid; grid-template-columns: 1fr 1fr; gap:5px;">
@@ -95,9 +94,9 @@
             </div>
         </div>
         
-        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال للنموذج</button>
+        <button class="btn btn-add" onclick="addQuestion()">+ إضافة السؤال</button>
         <hr>
-        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار (جاهز)</button>
+        <button class="btn btn-print" onclick="window.print()">🖨️ طباعة الاختبار</button>
     </div>
 
     <div class="preview-area">
@@ -114,16 +113,15 @@
 
         function toggleInputs() {
             const type = document.getElementById('qType').value;
-            document.getElementById('optsArea').style.display = (type === 'multi') ? 'block' : 'none';
+            document.getElementById('optsArea').style.display = (type === 'اختياري') ? 'block' : 'none';
             
-            // إظهار مربع النص الإضافي لأنواع معينة
-            if (type === 'parse' || type === 'extract') {
+            if (type === 'أعرب ما تحته خط' || type === 'استخرج من النص') {
                 document.getElementById('contextArea').style.display = 'block';
-                document.getElementById('contextLabel').innerText = (type === 'parse') ? "الجملة المراد إعرابها:" : "النص المستخرج منه:";
-                document.getElementById('mainQLabel').innerText = "المطلوب إعرابه / استخراجه:";
+                document.getElementById('contextLabel').innerText = (type === 'أعرب ما تحته خط') ? "الجملة المراد إعرابها:" : "النص المستخرج منه:";
+                document.getElementById('mainQLabel').innerText = "الكلمة المطلوب إعرابها / استخراجها:";
             } else {
                 document.getElementById('contextArea').style.display = 'none';
-                document.getElementById('mainQLabel').innerText = "نص السؤال:";
+                document.getElementById('mainQLabel').innerText = (type === 'أكمل الفراغ بما يناسبه') ? "اكتب الجملة مع وضع نقاط (...):" : "نص السؤال:";
             }
         }
         
@@ -158,24 +156,25 @@
             
             let qHtml = '';
             questions.forEach((q, i) => {
-                let content = '';
-                if (q.type === 'multi') {
-                    content = `<div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>`;
-                } else if (q.type === 'tf') {
-                    content = `<div class="options-container" style="margin-top:20px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
-                } else if (q.type === 'parse' || q.type === 'extract') {
-                    content = `<div class="context-box"><b>النص:</b> ${q.context}</div><div><b>المطلوب:</b> ${q.text}</div><div class="answer-line"></div>`;
+                let body = '';
+                let label = `<span class="q-type-label">${q.type}:</span>`;
+
+                if (q.type === 'اختياري') {
+                    body = `<b>${q.text}</b><div class="options-container"><div class="option"><span class="bubble">أ</span>${q.a}</div><div class="option"><span class="bubble">ج</span>${q.c}</div><div class="option"><span class="bubble">ب</span>${q.b}</div><div class="option"><span class="bubble">د</span>${q.d}</div></div>`;
+                } else if (q.type === 'صح أو خطأ') {
+                    body = `<b>${q.text}</b><div class="options-container" style="margin-top:10px"><div class="option"><span class="bubble">✓</span> صح</div><div class="option"><span class="bubble">✗</span> خطأ</div></div>`;
+                } else if (q.type === 'أعرب ما تحته خط' || q.type === 'استخرج من النص') {
+                    body = `<div class="context-box">${q.context}</div><b>المطلوب:</b> ${q.text}<div class="answer-line"></div>`;
                 } else {
-                    // جمل مفيدة وفراغات
-                    content = `<div>${q.text}</div><div class="answer-line"></div>`;
+                    // إكمال الفراغات والجمل المفيدة
+                    body = `<b>${q.text}</b><div class="answer-line"></div>`;
                 }
 
-                qHtml += `<div class="q-box"><span class="delete-btn no-print" onclick="removeQ(${i})">حذف</span><div><span class="q-num">${i+1}</span><b>${q.text && (q.type !== 'parse' && q.type !== 'extract') ? q.text : ''}</b></div>${content}</div>`;
+                qHtml += `<div class="q-box"><span class="delete-btn no-print" onclick="removeQ(${i})">حذف</span>${label}<div><span class="q-num">${i+1}</span>${body}</div></div>`;
             });
             document.getElementById('qGrid').innerHTML = qHtml;
             document.getElementById('footerMsg').innerText = `مع تمنياتنا لكم بالتوفيق.. معلم المادة: ${teacher}`;
         }
-
         updatePreview();
     </script>
 </body>
