@@ -2,53 +2,52 @@
 <html lang="ar" dir="rtl">
 <head>
     <meta charset="UTF-8">
-    <title>نظام اختبارات ثانوية الأمير عبدالمجيد</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/html-to-image/1.11.11/html-to-image.min.js"></script>
+    <title>منصة اختبارات أ/ عبدالعزيز الفيفي</title>
     <style>
-        /* إعدادات الطباعة الصارمة لضمان عدم الاختفاء */
+        /* إعدادات الطباعة الاحترافية */
         @media print {
-            @page { 
-                margin: 0; /* إلغاء الرابط والتاريخ تماماً */
-                size: A4;
-            }
+            @page { margin: 0; size: A4; }
             body { margin: 0; padding: 0; background: white; }
             .controls, .delete-btn, .no-print { display: none !important; }
-            .preview-area { background: white !important; padding: 0 !important; display: block !important; }
-            
+            .preview-area { background: white !important; padding: 0 !important; overflow: visible !important; display: block !important; }
             .word-page { 
-                box-shadow: none !important; 
-                border: none !important; 
-                width: 190mm !important; /* تقليل العرض قليلاً لضمان بقائه داخل حدود الورقة */
-                margin-left: auto !important;
-                margin-right: auto !important;
-                padding: 10mm 5mm !important; /* هوامش داخلية متوازنة */
-                transform: scale(1) !important;
-            }
-            
-            table, .questions-grid {
-                width: 100% !important; /* تمدد الجداول لتملأ الـ 190 ملم */
+                box-shadow: none !important; border: none !important; 
+                width: 190mm !important; margin: 0 auto !important;
+                padding: 10mm 5mm !important; transform: scale(1) !important;
             }
         }
 
-        /* تنسيق الشاشة */
+        /* تنسيق الشاشة مع تفعيل التمرير */
         body { font-family: 'Sakkal Majalla', 'Arial', sans-serif; margin: 0; display: flex; height: 100vh; background: #f0f2f5; overflow: hidden; }
         .controls { width: 340px; padding: 20px; background: #fff; border-left: 2px solid #ddd; overflow-y: auto; flex-shrink: 0; }
         .config-box { background: #f0f7ff; padding: 12px; border-radius: 8px; margin-bottom: 15px; border: 1px solid #b3d7ff; }
         .input-group { margin-bottom: 10px; }
         label { display: block; font-weight: bold; font-size: 14px; margin-bottom: 3px; }
         input, textarea, select { width: 100%; padding: 8px; border: 1px solid #ccc; border-radius: 4px; font-family: inherit; }
+        
         .btn { width: 100%; padding: 10px; border: none; border-radius: 5px; font-weight: bold; cursor: pointer; margin-top: 8px; color: white; display: flex; align-items: center; justify-content: center; gap: 8px; }
         .btn-add { background: #007bff; }
         .btn-print { background: #17a2b8; }
 
-        .preview-area { flex-grow: 1; padding: 10px; overflow: hidden; background: #525659; display: flex; justify-content: center; align-items: flex-start; }
+        /* تعديل منطقة المعاينة للسماح بالنزول للموس */
+        .preview-area { 
+            flex-grow: 1; 
+            padding: 20px; 
+            overflow-y: auto; /* يسمح بالنزول لرؤية باقي الأسئلة */
+            background: #525659; 
+            display: flex; 
+            justify-content: center; 
+            align-items: flex-start; 
+        }
         .word-page { 
             width: 210mm; background: white; padding: 10mm;
             min-height: 285mm; position: relative; box-shadow: 0 0 20px rgba(0,0,0,0.5);
-            transform: scale(0.75); transform-origin: top center;
+            transform: scale(0.85); /* حجم مناسب للمعاينة */
+            transform-origin: top center;
+            margin-bottom: 50px; /* مسافة إضافية في الأسفل لراحة التصفح */
         }
 
-        /* تنسيق الجداول (مطابق للنماذج الرسمية) */
+        /* تنسيق الجداول والأسئلة */
         .header-table { width: 100%; border-collapse: collapse; }
         .header-table td { border: 1.5px solid black; padding: 4px; text-align: center; font-weight: bold; font-size: 13pt; line-height: 1.2; }
         .student-info { width: 100%; border-collapse: collapse; margin-top: 5px; }
